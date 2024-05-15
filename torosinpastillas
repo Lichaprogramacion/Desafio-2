@@ -1,0 +1,71 @@
+def calcular_porcentaje(acumulador):
+    for pais, jugadoras in acumulador.items():
+        for jugadora in jugadoras:
+            total_pases = jugadora['0'] + jugadora['1']
+            if total_pases > 0:
+                porcentaje = (jugadora['1'] / total_pases) * 100
+            else:
+                porcentaje = 0
+            jugadora['Porcentaje'] = round(porcentaje, 2)
+
+def procesar_archivo(ruta_archivo):
+    with open(ruta_archivo) as archivo:
+        acumulador = {}
+        for i in archivo:
+            i = i.strip()
+            partes = i.split(';')
+            if len(partes) >= 5:
+                pais = partes[0]
+                numero = partes[1]
+                nombre = partes[2]
+                resultado = partes[3]
+                jugadora = {'Numero': numero, 'Nombre': nombre, '0': 0, '1': 0}
+                if pais not in acumulador:
+                    acumulador[pais] = []
+                
+                # Buscar si la jugadora ya está en la lista
+                jugadora_existente = next((j for j in acumulador[pais] if j['Numero'] == numero and j['Nombre'] == nombre), None)
+                
+                if jugadora_existente:
+                    if resultado == '0':
+                        jugadora_existente['0'] += 1
+                    else:
+                        jugadora_existente['1'] += 1
+                else:
+                    if resultado == '0':
+                        jugadora['0'] += 1
+                    else:
+                        jugadora['1'] += 1
+                    acumulador[pais].append(jugadora)
+        
+        calcular_porcentaje(acumulador)
+        
+        # Ordenar las jugadoras por total de pases
+        for pais in acumulador:
+            acumulador[pais].sort(key=lambda x: x['0'] + x['1'], reverse=True)
+        
+        return acumulador
+
+def convertir_a_lista_de_diccionarios(acumulador):
+    lista_ordenada = []
+    for pais, jugadoras in acumulador.items():
+        lista_jugadoras = []
+        for jugadora in jugadoras:
+            lista_jugadoras.append({
+                'Numero': jugadora['Numero'],
+                'Nombre': jugadora['Nombre'],
+                'Cantidad_Pases': jugadora['0'] + jugadora['1'],
+                'Pases_Bien': jugadora['1'],
+                'Pases_Mal': jugadora['0'],
+                'Porcentaje': jugadora['Porcentaje']
+            })
+        lista_ordenada.append({pais: lista_jugadoras})
+    return lista_ordenada
+
+# Ruta del archivo a procesar
+ruta_archivo = 'resultado.txt'
+acumulador = procesar_archivo(ruta_archivo)
+lista_ordenada = convertir_a_lista_de_diccionarios(acumulador)
+
+# Imprimir en el formato requerido
+print(lista_ordenada)
