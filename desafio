@@ -1,0 +1,23 @@
+def contar_pases_y_efectividad():
+    with open('resultado.txt') as archivo:
+        jugadoras = set()
+        acumulador = {}
+        for i in archivo:
+            i = i.strip()
+            partes=i.split(';')
+            if len(partes)>=5:
+                pais = partes[0]
+                numero = partes[1]
+                nombre = partes[2]
+                resultado = partes[3]
+                anadir = (pais,numero,nombre)
+                jugadoras.add(anadir)
+                if anadir not in acumulador:
+                    acumulador[anadir] = {'0':0,'1':0}
+                if resultado == '0':
+                    acumulador[anadir]['0']+=1
+                else:
+                    acumulador[anadir]['1']+=1
+    print(acumulador)
+contar_pases_y_efectividad()
+
